@@ -14,6 +14,7 @@ S = "${WORKDIR}/sources"
 UNPACKDIR = "${S}"
 SRC_URI = " file://provision_tools;subdir=${S} "
 SRC_URI += " file://key_management_tools;subdir=${S} "
+PROVISION_IMAGE_INI ?= "provisioning_image_generator_rootkey.ini"
 
 do_patch[noexec] = "1"
 do_configure[noexec] = "1"
@@ -40,7 +41,7 @@ do_install() {
     install -m 0644 ${S}/provision_tools/*.* ${PFR_PROVISION_TOOLS_DIR}/.
 
     cd ${PFR_PROVISION_TOOLS_DIR}
-    python3 provisioning_image_generator.py provisioning_image_generator_rootkey.ini
+    python3 provisioning_image_generator.py ${PROVISION_IMAGE_INI}
 
     dd if=/dev/zero bs=1k count=${PROVISION_IMAGE_SIZE} | tr '\000' '\377' > \
         ${PFR_PROVISION_TOOLS_DIR}/final_provision.bin

@@ -1,0 +1,41 @@
+<RecoveryImage version="08.03" platform="Server-BMC" type="0">
+  <RecoverySection>
+    <WriteAddress>0x00000000</WriteAddress> <!-- u-boot -->
+    <Region>
+      <StartAddr>0x00000000</StartAddr>
+      <EndAddr>0x003fffff</EndAddr>
+    </Region>
+  </RecoverySection>
+
+  <RecoverySection>
+    <WriteAddress>0x00400000</WriteAddress> <!-- u-boot-env -->
+    <Region>
+      <StartAddr>0x00400000</StartAddr>
+      <EndAddr>0x0041ffff</EndAddr>
+    </Region>
+  </RecoverySection>
+
+  <RecoverySection>
+    <WriteAddress>0x00420000</WriteAddress> <!-- fit-image -->
+    <Region>
+      <StartAddr>0x00420000</StartAddr>
+      <EndAddr>0x0271FFFF</EndAddr>
+    </Region>
+  </RecoverySection>
+
+  <RecoverySection>
+    <WriteAddress>0x02720000</WriteAddress> <!-- rw-img -->
+    <Region>
+      <StartAddr>0x02720000</StartAddr>
+      <EndAddr>0x0291FFFF</EndAddr>
+    </Region>
+  </RecoverySection>
+
+  <RecoverySection>
+    <WriteAddress>0x02920000</WriteAddress> <!-- pfm -->
+    <Region>
+      <StartAddr>0x02920000</StartAddr>
+      <EndAddr>0x0293FFFF</EndAddr>
+    </Region>
+  </RecoverySection>
+</RecoveryImage>

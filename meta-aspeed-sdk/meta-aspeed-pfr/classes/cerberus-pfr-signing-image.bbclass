@@ -21,12 +21,27 @@ PFR_IMAGE_BIN = "image-mtd-pfr"
 PFR_MANIFEST_TOOLS_DIR = "${STAGING_DIR_NATIVE}${datadir}/cerberus/manifest_tools"
 PFR_RECOVERY_TOOLS_DIR = "${STAGING_DIR_NATIVE}${datadir}/cerberus/recovery_tools"
 
+IMAGE_SIZE = "${@bb.utils.contains('MACHINE_FEATURES', '128m', '128', '256', d)}"
+
 do_generate_signed_pfr_image(){
     if [ -d ${PFR_IMAGES_DIR} ]; then
         rm -rf ${PFR_IMAGES_DIR}
     fi
 
     install -d ${PFR_IMAGES_DIR}
+
+    if [ "${SOC_FAMILY}" = "aspeed-g7" ]; then
+        if [ "${IMAGE_SIZE}" = "256" ];then
+            OBMC_PFM_CONFIG="obmc_pfm_generator_2700.config"
+            OBMC_RECOVERY_IMAGE_CONFIG="obmc_recovery_image_generator_2700.config"
+        else
+            OBMC_PFM_CONFIG="obmc_pfm_generator_2700_128.config"
+            OBMC_RECOVERY_IMAGE_CONFIG="obmc_recovery_image_generator_2700_128.config"
+        fi
+    else
+        OBMC_PFM_CONFIG="obmc_pfm_generator.config"
+        OBMC_RECOVERY_IMAGE_CONFIG="obmc_recovery_image_generator.config"
+    fi
 
     # Assemble the flash image
     mk_empty_image ${PFR_IMAGES_DIR}/${PFR_IMAGE_BIN} ${PFR_IMAGE_SIZE}
@@ -40,7 +55,7 @@ do_generate_signed_pfr_image(){
     rm -f ${PFR_MANIFEST_TOOLS_DIR}/obmc_pfm.bin
     install ${PFR_IMAGES_DIR}/${PFR_IMAGE_BIN} ${PFR_MANIFEST_TOOLS_DIR}
     cd ${PFR_MANIFEST_TOOLS_DIR}
-    python3 pfm_generator.py obmc_pfm_generator.config
+    python3 pfm_generator.py ${OBMC_PFM_CONFIG}
     install obmc_pfm.bin ${PFR_IMAGES_DIR}/.
     cd ${S}
 
@@ -54,7 +69,7 @@ do_generate_signed_pfr_image(){
     rm -f ${PFR_RECOVERY_TOOLS_DIR}/obmc_recovery_image.bin
     install ${PFR_IMAGES_DIR}/${PFR_IMAGE_BIN} ${PFR_RECOVERY_TOOLS_DIR}
     cd ${PFR_RECOVERY_TOOLS_DIR}
-    python3 recovery_image_generator.py obmc_recovery_image_generator.config
+    python3 recovery_image_generator.py ${OBMC_RECOVERY_IMAGE_CONFIG}
     install obmc_recovery_image.bin ${PFR_IMAGES_DIR}/.
     cd ${S}
 
