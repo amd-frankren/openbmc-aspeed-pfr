@@ -1,0 +1,253 @@
+From a90b03a10b1618e256c66c9aecbb774a2ab43d43 Mon Sep 17 00:00:00 2001
+From: frankren <frankren@amd.com>
+Date: Wed, 3 Sep 2025 11:23:15 +0800
+Subject: [PATCH] Configure GPIO and RoT i2c bus for AMD Venice CRB
+
+Upstream-Status: Pending
+Signed-off-by: frankren <frankren@amd.com>
+---
+ .../boot/dts/aspeed/ast2700-dcscm-amd-128.dts | 186 ++++--------------
+ 1 file changed, 39 insertions(+), 147 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/aspeed/ast2700-dcscm-amd-128.dts b/arch/arm64/boot/dts/aspeed/ast2700-dcscm-amd-128.dts
+index 5795a13ba635..50ea797ea734 100644
+--- a/arch/arm64/boot/dts/aspeed/ast2700-dcscm-amd-128.dts
++++ b/arch/arm64/boot/dts/aspeed/ast2700-dcscm-amd-128.dts
+@@ -7,7 +7,7 @@
+ #include <dt-bindings/i2c/i2c.h>
+ 
+ / {
+-	model = "AST2700-DCSCM";
++	model = "AST2700-DCSCM AMD";
+ 	compatible = "aspeed,ast2700";
+ 
+ 	chosen {
+@@ -98,31 +98,6 @@ &adc1 {
+ };
+ 
+ &pinctrl1 {
+-	pinctrl_i3c0_3_hv_voltage: i3chv-voltage {
+-		pins = "U25";
+-		power-source = <1800>;
+-	};
+-
+-	pinctrl_i3c0_driving: i3c0-driving {
+-		pins = "U25", "U26";
+-		drive-strength = <2>;
+-	};
+-
+-	pinctrl_i3c1_driving: i3c1-driving {
+-		pins = "Y26", "AA24";
+-		drive-strength = <2>;
+-	};
+-
+-	pinctrl_i3c2_driving: i3c2-driving {
+-		pins = "R25", "AA26";
+-		drive-strength = <2>;
+-	};
+-
+-	pinctrl_i3c3_driving: i3c3-driving {
+-		pins = "R26", "Y25";
+-		drive-strength = <2>;
+-	};
+-
+ 	pinctrl_rgmii0_driving: rgmii0-driving {
+ 		pins = "C20", "C19", "A8", "R14", "A7", "P14",
+ 		       "D20", "A6", "B6", "N14", "B7", "B8";
+@@ -397,23 +372,32 @@ &ltpi1 {
+ &ltpi0_gpio {
+ 	status = "okay";
+ 	gpio-line-names =
+-		/*00-07*/ "","","","","","","","",
+-		/*08-15*/ "","","","","","","","",
+-		/*16-23*/ "","FM_CPU_FBRK_DEBUG_N","","FM_BMC_TRUST_N","","FM_RST_BTN_OUT_CPU0_PLD_N_OE","","FM_PWR_BTN_OUT_CPU0_N",
+-		/*24-31*/ "","FM_BMC_ONCTL_N","","","","","","",
+-		/*32-39*/ "","BIOS_POST_CODE_LED_0","","BIOS_POST_CODE_LED_1","","BIOS_POST_CODE_LED_2","","BIOS_POST_CODE_LED_3",
+-		/*40-47*/ "FP_ID_BTN_N","BIOS_POST_CODE_LED_4","FP_RST_BTN_N","BIOS_POST_CODE_LED_5","","BIOS_POST_CODE_LED_6","","BIOS_POST_CODE_LED_7",
+-		/*48-55*/ "","A_P3V_BAT_SCALED_EN","","FM_TPM_EN_PULSE","","FM_SKT0_FAULT_LED","","FM_SKT1_FAULT_LED",
+-		/*56-63*/ "","","","","","RST_BMC_SMB_PCIE_MUX_N","","SURPRISE_RESET",
+-		/*64-71*/ "PWRGD_S0_PWROK_CPU0","","","","","","","",
++		/*00-07*/ "","","",
++			"P0_MGMT_ASSERT_CLR_CMOS","P0_MGMT_MON_PROCHOT_L","P0_MGMT_ASSERT_PROCHOT_L",
++			"P0_MGMT_MON_RSMRST_L","P0_ASSERT_RSMRST",
++		/*08-15*/ "P0_MGMT_MON_THERMTRIP_L","P0_MGMT_ASSERT_THERMTRIP_L","P0_PRESENT_L",
++			"","P1_PRESENT_L","",
++			"P0_MGMT_MON_POST_COMPLETE","",
++		/*16-23*/ "P0_MGMT_MON_PWR_GOOD","","P0_MGMT_MON_PSP_SOFT_FUSE_NTFY",
++			"","P0_I3C_APML_ALERT_L","",
++			"MGMT_SYS_MON_ATX_PWR_OK","",
++		/*24-31*/ "","","","","","","","P0_MGMT_ASSERT_NMI_BTN_L",
++		/*32-39*/ "","P0_MGMT_SOC_RESET_L","",
++			"MGMT_HDT_SEL","","SCM_JTAG_DBREQ","","JTAG_TRST_N",
++		/*40-47*/ "","P0_MGMT_ASSERT_WARM_RST_BTN_L","P0_MGMT_MON_DIMM_AH_PCAMP","","P0_MGMT_MON_DIMM_IP_PCAMP","","","",
++		/*48-55*/ "","","","","","","","",
++		/*56-63*/ "","","","","","","","",
++		/*64-71*/ "","","","","","","","",
+ 		/*72-79*/ "","","","","","","","",
+ 		/*80-87*/ "","","","","","","","",
+ 		/*88-95*/ "","","","","","","","",
+ 		/*96-103*/ "","","","","","","","",
+-		/*104-111*/ "","","","","","","","",
++		/*104-111*/ "","","","","","HPM_STBY_EN","","",
+ 		/*112-119*/ "","","","","","","","",
+ 		/*120-127*/ "","","","","","","","",
+-		/*128-135*/ "","","","","","","","",
++		/*128-135*/ "P0_MGMT_MON_RST_BTN_L","P0_MGMT_ASSERT_RST_BTN_L","P0_MGMT_MON_PWR_BTN_L",
++			 "P0_MGMT_ASSERT_PWR_BTN_L","","",
++			 "","",
+ 		/*136-143*/ "","","","","","","","",
+ 		/*144-151*/ "","","","","","","","",
+ 		/*152-159*/ "","","","","","","","",
+@@ -425,43 +409,6 @@ &ltpi0_gpio {
+ 		/*200-207*/ "","","","","","","","",
+ 		/*208-215*/ "","","","","","","","",
+ 		/*216-223*/ "","","","","","","","";
+-
+-	gpio_17 {
+-		gpio-hog;
+-		gpios = <17 GPIO_ACTIVE_HIGH>;
+-		output-high;
+-		line-name = "FM_CPU_FBRK_DEBUG_N";
+-	};
+-	gpio_19 {
+-		gpio-hog;
+-		gpios = <19 GPIO_ACTIVE_HIGH>;
+-		output-high;
+-		line-name = "FM_BMC_TRUST_N";
+-	};
+-	gpio_25 {
+-		gpio-hog;
+-		gpios = <25 GPIO_ACTIVE_HIGH>;
+-		output-low;
+-		line-name = "FM_BMC_ONCTL_N";
+-	};
+-	gpio_53 {
+-		gpio-hog;
+-		gpios = <53 GPIO_ACTIVE_HIGH>;
+-		output-high;
+-		line-name = "FM_SKT0_FAULT_LED";
+-	};
+-	gpio_61 {
+-		gpio-hog;
+-		gpios = <61 GPIO_ACTIVE_HIGH>;
+-		output-high;
+-		line-name = "RST_BMC_SMB_PCIE_MUX_N";
+-	};
+-	gpio_63 {
+-		gpio-hog;
+-		gpios = <63 GPIO_ACTIVE_HIGH>;
+-		output-low;
+-		line-name = "SURPRISE_RESET";
+-	};
+ };
+ 
+ &peci0 {
+@@ -504,80 +451,7 @@ &jtag1 {
+ 	status = "okay";
+ };
+ 
+-&gpio1 {
+-	pinctrl-0 = <&pinctrl_i3c0_3_hv_voltage
+-		     &pinctrl_i3c0_driving &pinctrl_i3c1_driving
+-		     &pinctrl_i3c2_driving &pinctrl_i3c3_driving>;
+-	pinctrl-names = "default";
+ 
+-	gpio-line-names =
+-		/*A0-A7*/ "","","","","","","","",
+-		/*B0-B7*/ "","","","","","","","",
+-		/*C0-C7*/ "","","","","","","","",
+-		/*D0-D7*/ "","","","","","","","",
+-		/*E0-E7*/ "","","","","FP_LED_STATUS_GREEN_CPLD_N","FP_LED_STATUS_AMBER_CPLD_N","","",
+-		/*F0-F7*/ "","","","","","","","",
+-		/*G0-G7*/ "","","","","","","","",
+-		/*H0-H7*/ "","","","","","","","",
+-		/*I0-I7*/ "","","","","","","","",
+-		/*J0-J7*/ "","","","","","","","",
+-		/*K0-K7*/ "","","","","","","","",
+-		/*L0-L7*/ "","","","","","","","",
+-		/*M0-M7*/ "","","","","","","","",
+-		/*N0-N7*/ "","","","","","","","",
+-		/*O0-O7*/ "","","","","","","","",
+-		/*P0-P7*/ "","","","","","","","",
+-		/*Q0-Q7*/ "","","","","","","","",
+-		/*R0-R7*/ "","","","","","","","",
+-		/*S0-S7*/ "","","","","","","","",
+-		/*T0-T7*/ "","","","","","","","",
+-		/*U0-U7*/ "","","","","","SCM_PHY_RST","","",
+-		/*V0-V7*/ "","","","","","","","",
+-		/*W0-W7*/ "","","","","","","","",
+-		/*X0-X7*/ "","","","","","","","",
+-		/*Y0-Y7*/ "","","","","IRQ_PMBUS1_ALERT_LVC3_N","FM_NVME_LVC3_ALERT_N","","",
+-		/*Z0-Z7*/ "","","FM_NODE_ID0_N","FM_NODE_ID1_N","","PWRGD_AUX_PWRGD_PFR_CPU0","PWRGD_AUX_PWRGD_PFR_CPU1","",
+-		/*AA0-AA7*/ "BMC_BOOT_DONE","","","","","","","",
+-		/*AB0-AB7*/ "","","","","","","","",
+-		/*AC0-AC7*/ "","","","","","","","",
+-		/*AD0-AD7*/ "","","","","","","","",
+-		/*AE0-AE7*/ "","","","","","","","";
+-};
+-
+-/* AST2700 A1 support SGPIO slave to 72*2 pins. */
+-/* The SGPIO slave table is defined in Chapter 7 of the AST2700 LTPI Design Guide v10.pdf. */
+-/* line 0:BMC_SGPI0(SCM_GPI0), 1:BMC_SGPO0(SCM_GPO0), 2:BMC_SGPI1(SCM_GPI1), 3:BMC_SGPO1(SCM_GPO1), etc... */
+-/* line 32:BMC_SGPI16(LTPI0_INL80), 33:BMC_SGPO16(LTPI0_ONL80), 34:LTPI0_INL81, 35:LTPI0_ONL81, etc... */
+-/* BMC_SGPI[15:0] = SCM_GPI0[15:0], BMC_SGPO[15:0] = BMC_SGPO0[15:0] */
+-/* BMC_SGPI[23:16] = LTPI0_INL[87:80], BMC_SGPO[23:16] = LTPI0_ONL[87:80] */
+-/* BMC_SGPI[31:24] = LTPI1_INL[87:80], BMC_SGPO[31:24] = LTPI1_ONL[87:80] */
+-/* BMC_SGPI[47:32] = LTPI0_INL[15:0],  BMC_SGPO[47:32] = LTPI0_ONL[15:0] */
+-/* BMC_SGPI[63:48] = LTPI1_INL[15:0],  BMC_SGPO[63:48] = LTPI1_ONL[15:0] */
+-/* BMC_SGPI[71:64] = SREG_GPO[7:0],    BMC_SGPO[71:64] = SREG_GPI[7:0] */
+-/* The designe guide only define SCM_GPO9(FP_PWR_BTN_PFR_N) for PFR output pin. */
+-/* We use AST2700 SGPIOS line 18 (FP_PWR_BTN_PFR_N_BMC_IN) for x86-power-control power button input. */
+-&sgpios {
+-	status = "okay";
+-	gpio-line-names =
+-		/*00-07*/ "","","","","","","","",
+-		/*08-15*/ "","","","","","","","",
+-		/*16-23*/ "","","FP_PWR_BTN_PFR_N_BMC_IN","","","","","",
+-		/*24-31*/ "","","","","","","","",
+-		/*32-39*/ "","","","","","","","",
+-		/*40-47*/ "","","","","","","","",
+-		/*48-55*/ "","","","","","","","",
+-		/*56-63*/ "","","","","","","","",
+-		/*64-71*/ "","","","","","","","",
+-		/*72-79*/ "","","","","","","","",
+-		/*80-87*/ "","","","","","","","",
+-		/*88-95*/ "","","","","","","","",
+-		/*96-103*/ "","","","","","","","",
+-		/*104-111*/ "","","","","","","","",
+-		/*112-119*/ "","","","","","","","",
+-		/*120-127*/ "","","","","","","","",
+-		/*128-135*/ "","","","","","","","",
+-		/*136-143*/ "","","","","","","","";
+-};
+ 
+ &espi0 {
+ 	status = "okay";
+@@ -884,6 +758,24 @@ &i2c5 {
+ 	status = "okay";
+ };
+ 
++
++&i2c6 {
++	/* ROT CARD */
++	status = "okay";
++	multi-master;
++	mctp-controller;
++	mctp@10 {
++		compatible = "mctp-i2c-controller";
++		reg = <(0x10 | I2C_OWN_SLAVE_ADDRESS)>;
++	};
++};
++
++
++&i2c7 {
++	status = "okay";
++};
++
++
+ /* AST2700 i2c8 -> AST1060 i2c5 for PCH mailbox emulation test. */
+ &i2c8 {
+ 	/* SMB_PCIE_SCM */
+-- 
+2.34.1
+
