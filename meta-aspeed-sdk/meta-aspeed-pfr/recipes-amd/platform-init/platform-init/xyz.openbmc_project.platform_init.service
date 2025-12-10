@@ -1,0 +1,10 @@
+[Unit]
+Description=Plaform Init
+After=basic.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/platform-init.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -19,5 +19,7 @@ RDEPENDS:${PN}-apps = " \
     spdm-emu \
     pfr-mctp-i3c \
     pfr-i3ctool \
+    phosphor-user-manager \
+    platform-init \
     "
 
